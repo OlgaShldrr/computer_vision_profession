@@ -10,11 +10,11 @@ prediction.setJsonPath(os.path.join(execution_path,"idenprof_model_class.json"))
 prediction.loadModel(num_objects=10)
 
 
-predictions, probabilities = prediction.predictImage(input$file1$datapath, result_count=3)
+predictions, probabilities = prediction.predictImage(r.image_path, result_count=3)
 global var
 var=''
 for eachPrediction, eachProbability in zip(predictions, probabilities):
     
-    var = var +str(eachPrediction) + " : " + str(eachProbability)+ "\n"
+    var = var +str(eachPrediction) + " : " + str(round(eachProbability,2))+ "%;"
 
 print(var)

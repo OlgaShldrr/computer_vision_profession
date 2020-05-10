@@ -1,12 +1,14 @@
 library(shiny)
 library(reticulate)
-library(lubridate)
+library(waiter)
+#py_install("imageai")
+#py_install("tensorflow")
 # Define UI for data upload app ----
-ui <- function(req) {
+ui <-   function(req){
   fluidPage(
-  
-  # App title ----
-  titlePanel("Uploading Files"),
+    use_waitress(),
+    # App title ----
+  titlePanel("Predict Profession"),
   
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
@@ -22,39 +24,26 @@ ui <- function(req) {
       tags$hr(),
       
       # Input: Checkbox if file has header ----
-      checkboxInput("header", "Header", TRUE),
+      h1("First level title"),
+      h2("Second level title"),
+     
       
-      # Input: Select separator ----
-      radioButtons("sep", "Separator",
-                   choices = c(Comma = ",",
-                               Semicolon = ";",
-                               Tab = "\t"),
-                   selected = ","),
-      
-      # Input: Select quotes ----
-      radioButtons("quote", "Quote",
-                   choices = c(None = "",
-                               "Double Quote" = '"',
-                               "Single Quote" = "'"),
-                   selected = '"'),
       
       # Horizontal line ----
       tags$hr(),
       
       # Input: Select number of rows to display ----
-      radioButtons("disp", "Display",
-                   choices = c(Head = "head",
-                               All = "all"),
-                   selected = "head")
+      h3("Third level title")
       
     ),
     
     # Main panel for displaying outputs ----
     mainPanel(
-      
+      img(src='myImage.png', align = "center"), 
       # Output: Data file ----
-      imageOutput("image"),
-      textOutput("contents")
+      textOutput("contents"),
+      imageOutput("image")
+     
       
     )
     
@@ -62,19 +51,11 @@ ui <- function(req) {
 )
 }
 
+
 # Define server logic to read selected file ----
 server <- function(input, output){
   
-  # 1. Trick file date creation update
-  onStop(function() {
-    
-    # 1. File name
-    p <- paste0(getwd(), "/app.R")
-    
-    # 2. Update file 'date creation'
-    Sys.setFileTime(p, now())
-    
-  }) # onStop
+ # onStop
 #  base64 <- reactive({
 #    inFile <- input[["file1"]]
 #    if(!is.null(inFile)){
@@ -90,11 +71,49 @@ server <- function(input, output){
 #      )
 #    }
 #  })
-
-    # When input$n is 1, filename is ./images/image1.jpeg
+ # observeEvent(!is.null(input$file1),{
+ #   # call the waitress
+ #   waitress <- Waitress$
+ #     new(theme = "overlay-percent")$
+ #     start() # start
+ #   
+ #   for(i in 1:30){
+ #     waitress$inc(1) # increase by 10%
+ #     Sys.sleep(.3)
+ #   }
+ #   
+ #   # hide when it's done
+ #   waitress$close() 
+ #   
+ #  	})
+   
+  waitress <- Waitress$new("#contents", hide_on_render = TRUE) 	
+  
+  output$contents <- renderText({
     
-      
+    # input$file1 will be NULL initially. After the user selects
+    # and uploads a file, head of that data file by default,
+    # or all rows if selected, will be shown.
     
+    req(input$file1)
+    
+    # when reading semicolon separated files,
+    # having a comma separator causes `read.csv` to error
+    #image_path = input$file1$datapath
+    waitress$start()
+    for(i in 1:10){
+      waitress$inc(0.5) # increase by 10%
+      Sys.sleep(.3)
+    }
+    
+    assign(x = "image_path", value = input$file1$datapath, envir = .GlobalEnv)
+    source_python("predicting.py")
+    print(var)
+    
+    
+    
+  })    
+   
   output$image <- renderImage({
     # A temp file to save the output.
     # This file will be removed later by renderImage
@@ -106,30 +125,13 @@ server <- function(input, output){
     # Return a list containing the filename
     list(src = input$file1$datapath,
          contentType = 'image/png',
-         width = 400,
-         height = 300,
          alt = "This is alternate text")
   }, deleteFile = FALSE)
 
-  png(width=400, height=300)
+  png()
   dev.off()
 
-  output$contents <- renderText({
-    
-    # input$file1 will be NULL initially. After the user selects
-    # and uploads a file, head of that data file by default,
-    # or all rows if selected, will be shown.
-    
-    req(input$file1)
-    
-    # when reading semicolon separated files,
-    # having a comma separator causes `read.csv` to error
-    
-  source_python("predicting.py")
-  print(var)
- 
-    
-  })
+
 
 }
 
