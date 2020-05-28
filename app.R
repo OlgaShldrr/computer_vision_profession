@@ -1,14 +1,21 @@
 library(shiny)
 library(reticulate)
 library(waiter)
-#py_install("imageai")
-#py_install("tensorflow")
+
+
+# Explicitly install python libraries that you want to use, e.g. pandas, numpy
+#virtualenv_install("python_environment", packages = c('imageai'))
+# Select the virtual environment
+#use_virtualenv("r-reticulate", required = TRUE)
+                   
 # Define UI for data upload app ----
 ui <-   function(req){
   fluidPage(
+    tags$img(src = "Capture.PNG", width="100%", align="left"),
+    tags$hr(),
     use_waitress(),
     # App title ----
-  titlePanel("Predict Profession"),
+  #titlePanel("Predict Profession"),
   
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
@@ -24,22 +31,27 @@ ui <-   function(req){
       tags$hr(),
       
       # Input: Checkbox if file has header ----
-      h1("First level title"),
-      h2("Second level title"),
-     
-      
-      
       # Horizontal line ----
-      tags$hr(),
+      
       
       # Input: Select number of rows to display ----
-      h3("Third level title")
+      h4("The model is taught to distinguish photos of these professions:"),
+      p("Doctor"),
+      p("Firefighter"),
+      p("Waiter"),
+      p("Chef"),
+      p("Engineer"),
+      p("Farmer"),
+      p("Judge"),
+      p("Mechanic"),
+      p("Pilot"),
+      p("Police")
       
     ),
     
     # Main panel for displaying outputs ----
     mainPanel(
-      img(src='myImage.png', align = "center"), 
+      #img(src='myImage.png', align = "center"), 
       # Output: Data file ----
       textOutput("contents"),
       imageOutput("image")
@@ -107,6 +119,11 @@ server <- function(input, output){
     }
     
     assign(x = "image_path", value = input$file1$datapath, envir = .GlobalEnv)
+    #virtualenv_create(envname = "python_environment", python="python3")
+    #virtualenv_install("python_environment", packages = c('imageai', 'tensorflow'))
+    #reticulate::use_virtualenv("python_environment", required = TRUE)
+    
+    
     source_python("predicting.py")
     print(var)
     
