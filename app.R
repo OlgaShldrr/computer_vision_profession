@@ -1,6 +1,6 @@
 library(shiny)
 library(reticulate)
-library(waiter)
+#library(waiter)
 
 
 # Explicitly install python libraries that you want to use, e.g. pandas, numpy
@@ -11,9 +11,9 @@ library(waiter)
 # Define UI for data upload app ----
 ui <-   function(req){
   fluidPage(
-    tags$img(src = "Capture.PNG", width="100%", align="left"),
+   # tags$img(src = "Capture.PNG", width="100%", align="left"),
     tags$hr(),
-    use_waitress(),
+    #use_waitress(),
     # App title ----
   #titlePanel("Predict Profession"),
   
@@ -99,7 +99,7 @@ server <- function(input, output){
  #   
  #  	})
    
-  waitress <- Waitress$new("#contents", hide_on_render = TRUE) 	
+  #waitress <- Waitress$new("#contents", hide_on_render = TRUE) 	
   
   output$contents <- renderText({
     
@@ -112,11 +112,11 @@ server <- function(input, output){
     # when reading semicolon separated files,
     # having a comma separator causes `read.csv` to error
     #image_path = input$file1$datapath
-    waitress$start()
-    for(i in 1:10){
-      waitress$inc(0.5) # increase by 10%
-      Sys.sleep(.3)
-    }
+   # waitress$start()
+    #for(i in 1:10){
+     # waitress$inc(0.5) # increase by 10%
+      #Sys.sleep(.3)
+    #}
     
     assign(x = "image_path", value = input$file1$datapath, envir = .GlobalEnv)
     #virtualenv_create(envname = "python_environment", python="python3")
@@ -154,5 +154,5 @@ server <- function(input, output){
 
 
 # Create Shiny app ----
-shinyApp(ui, server)
+shinyApp(ui, server, options = list(port = 15015, host = '0.0.0.0'))
 
